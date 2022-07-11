@@ -16,14 +16,14 @@ class PostsRepository {
             PostLikes.postId eq Posts.postId and (PostLikes.userId eq userId)
         }
 
-       Posts.join(Users, JoinType.INNER, additionalConstraint = { Posts.userId eq Users.id })
+        Posts.join(Users, JoinType.INNER, additionalConstraint = { Posts.userId eq Users.id })
             .join(
                 otherTable = PostLikes,
                 joinType = JoinType.LEFT,
                 additionalConstraint = { condition }
             )
             .selectAll()
-            .limit(20, 20)
+//            .limit(20, 20)
             .map { it.toCompletePost() }
 
     }

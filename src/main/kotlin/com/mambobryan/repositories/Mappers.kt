@@ -13,20 +13,22 @@ import org.jetbrains.exposed.sql.ResultRow
 internal fun ResultRow?.toUser(): User? {
     if (this == null) return null
     return User(
-        userId = this[Users.id],
-        userName = this[Users.name],
-        email = this[Users.email],
-        hash = this[Users.hash]
+        userId = this[Users.id], userName = this[Users.name], email = this[Users.email], hash = this[Users.hash]
     )
 }
 
 internal fun ResultRow?.toCompletePost(): CompletePost? {
     if (this == null) return null
+
+    val post = this.toPost()
+    val user = this.toUser()
+    val like = this.toPostLike()
+
     return CompletePost(
-        postId = this[Posts.postId],
-        postContent = this[Posts.content],
-        likeId = this[PostLikes.id].value,
-        user = this.toUser()
+        postId = post?.postId,
+        postContent = post?.content,
+        likeId = like?.likeId,
+        user = user
     )
 }
 
