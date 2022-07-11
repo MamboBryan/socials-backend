@@ -5,32 +5,38 @@ This is a brief demonstration of a kotlin backend server.
 Currently, this project uses the following libraries.
 
 - #### postgres
-  - ##### exposed | hikari
+    - ##### exposed | hikari
 - #### gson
 - #### jwt tokens
 
-## Tables
-- #### users
-  - user_id | user_name | user_email | hash (Password hash)
-- #### posts
-  - post_id | post_content | user_id (Foreign Key from users)
-- #### post_likes
-  - like_id | post_id (Foreign Key from posts) | user_id (Foreign Key from users)
+## How To Start
 
-  
+Clone the project and build. Open the Application.kt file located `./src/main/kotlin/com/mambobryan`, on the right side
+of `fun main()` you'll see a run button, click and :drum: your server is started. Head over to postman or insomnia to test the [endpoints](#endpoints)
+
+## Tables
+
+- #### users
+    - user_id | user_name | user_email | hash (Password hash)
+- #### posts
+    - post_id | post_content | user_id (Foreign Key from users)
+- #### post_likes
+    - like_id | post_id (Foreign Key from posts) | user_id (Foreign Key from users)
+
 ## Endpoints
+
 - ### auth
-  - #### signin
+    - #### signin
   ```
   Method : POST
   Endpoint : url/auth/signin
   Payload : JSON
-  Field : {
+  Field :  {
    email : String
    password : String
   }
   ```
-  - #### signup
+    - #### signup
   ```
   Method : POST
   Endpoint : url/auth/signup
@@ -42,18 +48,18 @@ Currently, this project uses the following libraries.
   }
   ```
 - ### users
-  - #### create
-  - #### update
-  - #### delete
-  - #### user
-    - ##### details
-    - ##### posts
+    - #### create
+    - #### update
+    - #### delete
+    - #### user
+        - ##### details
+        - ##### posts
 - ### posts
-  - #### create
-  - #### update
-  - #### delete
-  - #### list
-  - #### post
-    - ##### like
-    - ##### unlike
-    - ##### likes
+    - #### create
+    - #### update
+    - #### delete
+    - #### list
+    - #### post
+        - ##### like
+        - ##### unlike
+        - ##### likes

@@ -28,7 +28,7 @@ fun Route.authRoutes(
             )
 
             val user = repository.getUserByEmail(request.email!!) ?: return@post call.defaultResponse(
-                status = HttpStatusCode.OK, message = "Failed Signing In"
+                status = HttpStatusCode.Unauthorized, message = "Failed Signing In"
             )
 
             return@post try {
