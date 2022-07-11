@@ -12,8 +12,7 @@ version = "0.0.1"
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")
 
-//    val isDevelopment: Boolean = project.ext.has("development")
-    val isDevelopment: Boolean = true
+    val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
@@ -44,3 +43,9 @@ dependencies {
     implementation("org.postgresql:postgresql:42.3.6")
     implementation("com.zaxxer:HikariCP:5.0.1")
 }
+
+tasks{
+    create("stage").dependsOn("installDist")
+}
+
+
