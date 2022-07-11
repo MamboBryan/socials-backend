@@ -1,4 +1,4 @@
-# Socials Backend :fire:
+# [WIP] :construction: Socials Backend :fire:
 
 This is a brief demonstration of a kotlin backend server.
 
@@ -13,6 +13,8 @@ Currently, this project uses the following libraries.
 
 Clone the project and build. Open the Application.kt file located `./src/main/kotlin/com/mambobryan`, on the right side
 of `fun main()` you'll see a run button, click and :drum: your server is started. Head over to postman or insomnia to test the [endpoints](#endpoints)
+
+##### REMOTE : `https://mambo-socials.herokuapp.com/`
 
 ## Tables
 
@@ -42,14 +44,23 @@ of `fun main()` you'll see a run button, click and :drum: your server is started
   Endpoint : url/auth/signup
   Payload : JSON
   Field : {
+      username : String
+      email : String
+      password : String
+  }
+  ```
+- ### users 
+    - #### update
+  ```
+  Method : PUT
+  Endpoint : url/users
+  Payload : JSON
+  Field : {
   username : String
   email : String
   password : String
   }
   ```
-- ### users
-    - #### create
-    - #### update
     - #### delete
     - #### user
         - ##### details
