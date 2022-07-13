@@ -6,6 +6,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
+import java.util.UUID
 
 suspend fun ApplicationCall.defaultResponse(status: HttpStatusCode, message: String = "Error") {
     return this.respond(
@@ -20,7 +21,8 @@ suspend fun <T> ApplicationCall.successWithData(status: HttpStatusCode, message:
 }
 
 
-fun ApplicationCall.getUserId(): Int? {
-    val principal = this.principal<JWTPrincipal>()
-    return principal?.payload?.getClaim("id")?.asInt()
+fun ApplicationCall.getUserId(): UUID? {
+    val principal = this.principal<JWTPrincipal>() ?: return null
+    val idString = principal.payload.getClaim("id")?.asString() ?: return null
+    return UUID.fromString(idString) ?: return null
 }

@@ -1,9 +1,11 @@
 package com.mambobryan.routes
 
 import com.mambobryan.models.Response
+import com.mambobryan.models.requests.UserIdRequest
 import com.mambobryan.models.requests.UserRequest
 import com.mambobryan.repositories.PostsRepository
 import com.mambobryan.repositories.UsersRepository
+import com.mambobryan.utils.asUUID
 import com.mambobryan.utils.defaultResponse
 import com.mambobryan.utils.getUserId
 import com.mambobryan.utils.successWithData
@@ -57,13 +59,17 @@ fun Route.usersRoutes() {
 
         route("{id?}") {
 
-            get {
+            post {
 
-                val id = call.parameters["id"] ?: return@get call.defaultResponse(
+                val currentUserId = call.getUserId() ?: return@post call.defaultResponse(
+                    status = HttpStatusCode.NotAcceptable, message = "I have no idea"
+                )
+
+                val id = call.receive<UserIdRequest>().userId.asUUID() ?: return@post call.defaultResponse(
                     status = HttpStatusCode.BadRequest, message = "Missing Id",
                 )
 
-                val user = repository.getUser(id = id.toInt()) ?: return@get call.defaultResponse(
+                val user = repository.getUser(id = id) ?: return@post call.defaultResponse(
                     status = HttpStatusCode.NotFound, message = "User Not Found",
                 )
 
@@ -71,19 +77,19 @@ fun Route.usersRoutes() {
 
             }
 
-            get("posts") {
+            post("posts") {
 
-                val id = call.parameters["id"] ?: return@get call.defaultResponse(
+                val id = call.receive<UserIdRequest>().userId.asUUID() ?: return@post call.defaultResponse(
                     status = HttpStatusCode.BadRequest, message = "Missing Id",
                 )
 
-                val userId = call.getUserId() ?: return@get call.defaultResponse(
+                val userId = call.getUserId() ?: return@post call.defaultResponse(
                     status = HttpStatusCode.NotAcceptable, message = "I have no idea"
                 )
 
-                val posts = postsRepository.getUserPosts(currentUserId = userId, userId = id.toInt())
+                val posts = postsRepository.getUserPosts(currentUserId = userId, userId = id)
 
-                when (posts.isEmpty()) {
+                return@post when (posts.isEmpty()) {
                     true -> call.defaultResponse(message = "User has no post", status = HttpStatusCode.OK)
                     false -> call.respond(
                         Response(
@@ -96,11 +102,11 @@ fun Route.usersRoutes() {
 
             delete {
 
-                val id = call.parameters["id"] ?: return@delete call.defaultResponse(
+                val id = call.receive<UserIdRequest>().userId.asUUID() ?: return@delete call.defaultResponse(
                     status = HttpStatusCode.BadRequest, message = "Missing Id",
                 )
 
-                return@delete when (repository.delete(id.toInt())) {
+                return@delete when (repository.delete(id)) {
                     true -> call.defaultResponse(
                         status = HttpStatusCode.BadRequest, message = "Failed deleting user",
                     )

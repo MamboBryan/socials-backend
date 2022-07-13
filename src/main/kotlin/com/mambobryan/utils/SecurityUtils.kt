@@ -3,6 +3,7 @@ package com.mambobryan.utils
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.mambobryan.models.User
+import com.mambobryan.models.idAsString
 import io.ktor.util.*
 import java.util.*
 import javax.crypto.Mac
@@ -30,12 +31,13 @@ class JwtService {
         .withIssuer(issuer)
         .build()
 
+    @Throws(Exception::class)
     fun generateToken(issuer: String, audience: String, user: User): String = JWT
         .create()
         .withAudience(audience)
         .withIssuer(issuer)
         .withExpiresAt(expiresAt())
-        .withClaim("id", user.userId)
+        .withClaim("id", user.idAsString())
         .sign(algorithm)
 
 }

@@ -1,8 +1,8 @@
 package com.mambobryan.utils
 
-import com.mambobryan.tables.PostLikes
-import com.mambobryan.tables.Posts
-import com.mambobryan.tables.Users
+import com.mambobryan.models.Likes
+import com.mambobryan.models.Posts
+import com.mambobryan.models.Users
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
@@ -10,7 +10,6 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.transactions.transactionScope
 
 private fun hikariConfiguration(): HikariDataSource {
     val config = HikariConfig()
@@ -39,13 +38,8 @@ object DatabaseUtils {
 
         Database.connect(hikariConfiguration())
 
-        transactionScope {
-            SchemaUtils.createDatabase("socials")
-        }
-
         transaction {
-//            SchemaUtils.drop(Users, Posts, PostLikes)
-            SchemaUtils.create(Users, Posts, PostLikes)
+            SchemaUtils.create(Users, Posts)
         }
 
     }

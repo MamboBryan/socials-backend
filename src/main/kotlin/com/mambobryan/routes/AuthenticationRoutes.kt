@@ -2,6 +2,7 @@ package com.mambobryan.routes
 
 import com.mambobryan.models.requests.SignInRequest
 import com.mambobryan.models.requests.SignUpRequest
+import com.mambobryan.models.toDto
 import com.mambobryan.repositories.UsersRepository
 import com.mambobryan.utils.JwtService
 import com.mambobryan.utils.defaultResponse
@@ -40,7 +41,7 @@ fun Route.authRoutes(
                         val token = JwtService().generateToken(issuer = issuer, audience = audience, user = user)
 
                         val data = mapOf(
-                            "token" to token, "user" to user
+                            "token" to token, "user" to user.toDto()
                         )
 
                         call.successWithData(
@@ -69,29 +70,27 @@ fun Route.authRoutes(
 
             val hash = hashing(request.password)
 
-            val user = repository.create(
-                email = request.email, name = request.username, hash = hash
-            ) ?: return@post call.defaultResponse(
-                status = HttpStatusCode.Conflict, message = "Failed signing up"
+            val user = repository.create(email = request.email, name = request.username, hash = hash)
+
+            if (user.id.value.toString().isBlank()) return@post call.defaultResponse(
+                status = HttpStatusCode.Unauthorized, message = "Failed signing up"
             )
 
-            try {
-                val token = JwtService().generateToken(issuer = issuer, audience = audience, user = user)
-
-                val data = mapOf(
-                    "token" to token, "user" to user
-                )
-
-                call.successWithData(
-                    status = HttpStatusCode.Created, message = "Signed Up successfully", data = data
-                )
-
-            } catch (e: Exception) {
-                return@post call.defaultResponse(
-                    status = HttpStatusCode.NotAcceptable, message = "Failed signing up"
-                )
+            val token = JwtService().generateToken(issuer = issuer, audience = audience, user = user).also {
+                println("TOKEN -> $it")
             }
 
+            val data = mapOf(
+                "token" to token, "user" to user.toDto()
+            )
+
+//            return@post call.defaultResponse(
+//                status = HttpStatusCode.OK, message = "Success"
+//            )
+
+            return@post call.successWithData(
+                status = HttpStatusCode.Created, message = "Signed Up successfully", data = data
+            )
 
         }
 

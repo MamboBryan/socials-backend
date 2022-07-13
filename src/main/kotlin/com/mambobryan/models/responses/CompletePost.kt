@@ -7,4 +7,5 @@ data class CompletePost(
     val postContent: String?,
     val likeId: Int?,
     val user: User?,
+    val likes: Long
 )

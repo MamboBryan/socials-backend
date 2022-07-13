@@ -5,6 +5,7 @@ import com.mambobryan.routes.authRoutes
 import com.mambobryan.routes.postRoutes
 import com.mambobryan.routes.usersRoutes
 import com.mambobryan.utils.defaultResponse
+import com.mambobryan.utils.getUserId
 import com.mambobryan.utils.successWithData
 import io.ktor.http.*
 import io.ktor.server.routing.*
@@ -31,13 +32,11 @@ fun Application.configureRouting(
 
             get("/") {
 
-                val principal = call.principal<JWTPrincipal>()
-
-                val userId = principal!!.payload.getClaim("id") ?: return@get call.defaultResponse(
+                val userId = call.getUserId() ?: return@get call.defaultResponse(
                     status = HttpStatusCode.NotAcceptable, message = "I have no idea"
                 )
 
-                val user = UsersRepository().getUser(userId.asInt()) ?: return@get call.defaultResponse(
+                val user = UsersRepository().getUser(userId) ?: return@get call.defaultResponse(
                     status = HttpStatusCode.NotFound, message = "No User Found!"
                 )
 

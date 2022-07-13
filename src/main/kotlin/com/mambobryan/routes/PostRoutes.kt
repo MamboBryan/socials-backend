@@ -100,11 +100,16 @@ fun Route.postRoutes() {
             }
 
             delete {
+
                 val id = call.parameters["id"] ?: return@delete call.defaultResponse(
                     status = HttpStatusCode.BadRequest, message = "Missing Id",
                 )
 
-                return@delete when (repository.delete(id.toInt())) {
+                val userId = call.getUserId() ?: return@delete call.defaultResponse(
+                    status = HttpStatusCode.NotAcceptable, message = "Authentication Failed!"
+                )
+
+                return@delete when (repository.delete(userId = userId, postId = id.toInt())) {
                     true -> call.defaultResponse(
                         status = HttpStatusCode.BadRequest, message = "Failed deleting post",
                     )
@@ -116,56 +121,56 @@ fun Route.postRoutes() {
 
             route("likes") {
 
-                get {
-                    val likes = likesRepository.getPostLikes()
-                    when (likes.isEmpty()) {
-                        true -> call.defaultResponse(message = "No Like found", status = HttpStatusCode.OK)
-                        false -> call.successWithData(
-                            status = HttpStatusCode.OK, message = "Likes Found", data = likes
-                        )
-                    }
-                }
+//                get {
+//                    val likes = likesRepository.getPostLikes()
+//                    when (likes.isEmpty()) {
+//                        true -> call.defaultResponse(message = "No Like found", status = HttpStatusCode.OK)
+//                        false -> call.successWithData(
+//                            status = HttpStatusCode.OK, message = "Likes Found", data = likes
+//                        )
+//                    }
+//                }
 
-                post {
+//                post {
+//
+//                    val id = call.parameters["id"] ?: return@post call.defaultResponse(
+//                        status = HttpStatusCode.BadRequest, message = "Missing Id",
+//                    )
+//
+//                    val userId = call.getUserId() ?: return@post call.defaultResponse(
+//                        status = HttpStatusCode.NotAcceptable, message = "Authentication Failed!"
+//                    )
+//
+//                    val like = likesRepository.create(userId = userId, postId = id.toInt())
+//                        ?: return@post call.defaultResponse(
+//                            status = HttpStatusCode.BadRequest, message = "Failed liking post"
+//                        )
+//
+//                    call.successWithData(
+//                        status = HttpStatusCode.Created, message = "Post liked successfully", data = like
+//                    )
+//
+//                }
 
-                    val id = call.parameters["id"] ?: return@post call.defaultResponse(
-                        status = HttpStatusCode.BadRequest, message = "Missing Id",
-                    )
-
-                    val userId = call.getUserId() ?: return@post call.defaultResponse(
-                        status = HttpStatusCode.NotAcceptable, message = "Authentication Failed!"
-                    )
-
-                    val like = likesRepository.create(userId = userId, postId = id.toInt())
-                        ?: return@post call.defaultResponse(
-                            status = HttpStatusCode.BadRequest, message = "Failed liking post"
-                        )
-
-                    call.successWithData(
-                        status = HttpStatusCode.Created, message = "Post liked successfully", data = like
-                    )
-
-                }
-
-                delete {
-
-                    val id = call.parameters["id"] ?: return@delete call.defaultResponse(
-                        status = HttpStatusCode.BadRequest, message = "Missing Id",
-                    )
-
-                    val userId = call.getUserId() ?: return@delete call.defaultResponse(
-                        status = HttpStatusCode.NotAcceptable, message = "Authentication Failed!"
-                    )
-
-                    return@delete when (likesRepository.delete(userId = userId, postId = id.toInt())) {
-                        true -> call.defaultResponse(
-                            status = HttpStatusCode.BadRequest, message = "Failed liking post",
-                        )
-                        false -> call.defaultResponse(
-                            status = HttpStatusCode.OK, message = "Post unliked successfully",
-                        )
-                    }
-                }
+//                delete {
+//
+//                    val id = call.parameters["id"] ?: return@delete call.defaultResponse(
+//                        status = HttpStatusCode.BadRequest, message = "Missing Id",
+//                    )
+//
+//                    val userId = call.getUserId() ?: return@delete call.defaultResponse(
+//                        status = HttpStatusCode.NotAcceptable, message = "Authentication Failed!"
+//                    )
+//
+//                    return@delete when (likesRepository.delete(userId = userId, postId = id.toInt())) {
+//                        true -> call.defaultResponse(
+//                            status = HttpStatusCode.BadRequest, message = "Failed liking post",
+//                        )
+//                        false -> call.defaultResponse(
+//                            status = HttpStatusCode.OK, message = "Post unliked successfully",
+//                        )
+//                    }
+//                }
 
             }
 

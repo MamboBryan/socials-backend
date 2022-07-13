@@ -40,6 +40,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-core:0.38.2")
     implementation("org.jetbrains.exposed:exposed-dao:0.38.2")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.38.2")
+    implementation("org.jetbrains.exposed:exposed-java-time:0.38.2")
     implementation("org.postgresql:postgresql:42.3.6")
     implementation("com.zaxxer:HikariCP:5.0.1")
 }
