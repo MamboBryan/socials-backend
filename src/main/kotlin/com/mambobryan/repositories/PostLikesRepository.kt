@@ -1,39 +1,44 @@
 package com.mambobryan.repositories
 
+import com.mambobryan.models.*
+import com.mambobryan.utils.query
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.statements.InsertStatement
+import java.util.UUID
+
 class PostLikesRepository {
 
+    suspend fun getPostLikes() = query {
+        Like.all().map { it.toLikeDto() }
+    }
 
+    suspend fun create(userId: UUID, postId: Int): Boolean? {
 
-//    suspend fun getPostLikes() = query {
-//        PostLikes.selectAll().map { it.toPostLike() }
-//    }
-//
-//    suspend fun create(userId: Int, postId: Int): PostLike? {
-//
-//        var statement: InsertStatement<Number>? = null
-//
-//        query {
-//
-//            val condition = Op.build { PostLikes.postId eq postId.toLong() and (PostLikes.userId eq userId) }
-//
-//            val isNotLiked = PostLikes.select { condition }.count() > 0L
-//
-////            if (isNotLiked)
-//            statement = PostLikes.insert {
-//                it[PostLikes.userId] = userId
-//                it[PostLikes.postId] = postId.toLong()
-//            }
-//        }
-//
-//        return statement?.resultedValues?.firstOrNull().toPostLike()
-//
-//    }
-//
-//    suspend fun delete(userId: Int, postId: Int) = query {
-//        val condition = Op.build { PostLikes.postId eq postId.toLong() and (PostLikes.userId eq userId) }
-//        val result = PostLikes.deleteWhere { condition }
-//        result == 0
-//
-//    }
+        var statement: InsertStatement<Number>? = null
+
+        query {
+
+            val condition = Op.build { Likes.postId eq postId and (Likes.userId eq userId) }
+
+            val isLiked = Likes.select { condition }.firstOrNull() != null
+
+            if (isLiked) return@query
+
+            statement = Likes.insert {
+                it[Likes.userId] = userId
+                it[Likes.postId] = postId
+            }
+        }
+
+        return statement?.resultedValues?.firstOrNull() != null
+
+    }
+
+    suspend fun delete(userId: UUID, postId: Int) = query {
+        val condition = Op.build { Likes.postId eq postId and (Likes.userId eq userId) }
+        val result = Likes.deleteWhere { condition }
+        result == 0
+
+    }
 
 }

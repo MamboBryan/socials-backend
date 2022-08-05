@@ -1,6 +1,7 @@
 package com.mambobryan.utils
 
 import com.mambobryan.models.Likes
+import com.mambobryan.models.PostLikes
 import com.mambobryan.models.Posts
 import com.mambobryan.models.Users
 import com.zaxxer.hikari.HikariConfig
@@ -39,7 +40,7 @@ object DatabaseUtils {
         Database.connect(hikariConfiguration())
 
         transaction {
-            SchemaUtils.create(Users, Posts)
+            SchemaUtils.create(Users, Posts, Likes, PostLikes)
         }
 
     }

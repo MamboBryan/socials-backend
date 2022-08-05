@@ -4,7 +4,7 @@ import com.google.gson.ExclusionStrategy
 import com.google.gson.FieldAttributes
 
 @Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY)
+@Target(AnnotationTarget.FIELD)
 annotation class Exclude
 
 class AnnotationExclusionStrategy : ExclusionStrategy {

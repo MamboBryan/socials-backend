@@ -1,10 +1,10 @@
 package com.mambobryan.repositories
 
-import com.mambobryan.models.Post
-import com.mambobryan.models.Posts
-import com.mambobryan.models.User
+import com.mambobryan.models.*
 import com.mambobryan.utils.query
-import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.statements.InsertStatement
 import java.time.LocalDateTime
 import java.util.*
 
@@ -13,30 +13,46 @@ class PostsRepository {
     suspend fun getPosts(userId: UUID) = query {
 
 //        val condition = Op.build {
-//            PostLikes.postId eq Posts.postId and (PostLikes.userId eq userId)
+//            Likes.postId eq Posts.id and (Likes.userId eq userId)
 //        }
-
-//        val likesCount: ExpressionAlias<Long> = PostLikes.postId.count().alias("likesCount")
-//        val likeQuery = PostLikes.slice(likesCount).select { condition }.orderBy(Posts.postId).alias("likesQuery")
-
+//
+//        val likesCount = Likes.postId.count().alias("likesCount")
+//        val likeQuery = Likes.slice(likesCount).select { condition }.orderBy(Posts.id).alias("likesQuery")
+//
 //        Posts.join(Users, JoinType.INNER, additionalConstraint = { Posts.userId eq Users.id })
 //            .join(
-//                otherTable = PostLikes,
+//                otherTable = Likes,
 //                joinType = JoinType.LEFT,
 //                additionalConstraint = { condition }
 //            )
 //            .slice(
-//                PostLikes.postId.count().alias("likes"),
+//                Likes.postId.count().alias("likes"),
 //                *Posts.fields.toTypedArray(),
 //                *Users.fields.toTypedArray(),
-//                *PostLikes.fields.toTypedArray()
+//                *Likes.fields.toTypedArray()
 //            )
 //            .selectAll()
-//            .groupBy(Posts.postId)
-//            .map { it.toCompletePost() }
+//            .groupBy(Posts.id, Users.id, Likes.id)
+//            .map {
+//                val map = mutableMapOf<String, String>()
+//                for ((key, value) in it.fieldIndex) {
+//                    map[key.toString()] = value.toString()
+//                }
+//                map
+//            }
 
 
-        Post.all().sortedBy { Posts.updatedAt }
+        Posts.innerJoin(Users).leftJoin(Likes).selectAll().map {
+            mapOf(
+                "post" to it.toPost(),
+                "user" to it.toUser(),
+//                    "like" to it.toLike()
+            )
+        }
+
+//        PostEntity.all().sortedByDescending { Posts.updatedAt }.map {
+//            it.toPostLikeDto()
+//        }
 
 
     }
@@ -57,36 +73,34 @@ class PostsRepository {
 //            .limit(20, 20)
 //            .map { it.toCompletePost() }
 
-        Post.find { Posts.user eq userId }.sortedBy { Posts.updatedAt }
+        PostEntity.find { Posts.userId eq userId }.sortedBy { Posts.updatedAt }.map { it.toUserPost() }
+//            .map { "content" to it.content }
+//        Post.find { Posts.userId eq userId }
+//            .sortedBy { Posts.updatedAt }
+//            .map { it.toPostDto() }
 
     }
 
     suspend fun getPost(id: Int) = query {
 //        Posts.select { Posts.postId eq id.toLong() }.map { it.toPost() }.singleOrNull()
-        Post.findById(id)
+        PostEntity.findById(id).toPostDto()
     }
 
-    suspend fun create(userId: UUID, content: String): Post? = query {
+    suspend fun create(userId: UUID, content: String): PostDTO? {
 
-//        var statement: InsertStatement<Number>? = null
-//
-//        query {
-//            statement = Posts.insert {
-//                it[Posts.userId] = userId
-//                it[Posts.content] = content
-//            }
-//        }
-//
-//        return statement?.resultedValues?.get(0).toPost()
+        var statement: InsertStatement<Number>? = null
 
-        val post = Post.new {
-            this.createdAt = LocalDateTime.now()
-            this.updatedAt = LocalDateTime.now()
-            this.content = content
-//            this.user = Select
+        query {
+            statement = Posts.insert {
+                it[Posts.createdAt] = LocalDateTime.now()
+                it[Posts.updatedAt] = LocalDateTime.now()
+                it[Posts.content] = content
+                it[Posts.userId] = userId
+            }
         }
 
-        post
+        return statement?.resultedValues?.get(0).toPost()
+
 
     }
 
@@ -100,19 +114,21 @@ class PostsRepository {
 //
 //        Posts.select { Posts.postId eq postId.toLong() }.map { it.toPost() }.singleOrNull()
 
-        val post = Post.find { Posts.id eq postId and (Posts.user eq userId) }.singleOrNull() ?: return@query null
+        val postEntity =
+            PostEntity.find { Posts.id eq postId and (Posts.userId eq userId) }.singleOrNull() ?: return@query null
 
-        if (content != null) post.content = content
+        if (content != null) postEntity.content = content
 
-        post
+        postEntity.toPostDto()
 
     }
 
     suspend fun delete(userId: UUID, postId: Int) = query {
 
-        val post = Post.find { Posts.id eq postId and (Posts.user eq userId) }.singleOrNull() ?: return@query false
+        val postEntity =
+            PostEntity.find { Posts.id eq postId and (Posts.userId eq userId) }.singleOrNull() ?: return@query false
 
-        post.delete()
+        postEntity.delete()
 
         true
 

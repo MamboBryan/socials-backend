@@ -16,6 +16,7 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import java.util.*
 
 fun Route.usersRoutes() {
 
@@ -79,15 +80,15 @@ fun Route.usersRoutes() {
 
             post("posts") {
 
-                val id = call.receive<UserIdRequest>().userId.asUUID() ?: return@post call.defaultResponse(
-                    status = HttpStatusCode.BadRequest, message = "Missing Id",
-                )
+//                val id = call.receive<UserIdRequest>().userId.asUUID() ?: return@post call.defaultResponse(
+//                    status = HttpStatusCode.BadRequest, message = "Missing Id",
+//                )
 
                 val userId = call.getUserId() ?: return@post call.defaultResponse(
                     status = HttpStatusCode.NotAcceptable, message = "I have no idea"
                 )
 
-                val posts = postsRepository.getUserPosts(currentUserId = userId, userId = id)
+                val posts = postsRepository.getUserPosts(currentUserId = userId, userId = userId)
 
                 return@post when (posts.isEmpty()) {
                     true -> call.defaultResponse(message = "User has no post", status = HttpStatusCode.OK)
